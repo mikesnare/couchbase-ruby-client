@@ -431,6 +431,7 @@ do_connect(struct cb_bucket_st *bucket)
     lcb_cntl(bucket->handle, (bucket->timeout > 0) ? LCB_CNTL_SET : LCB_CNTL_GET,
              LCB_CNTL_OP_TIMEOUT, &bucket->timeout);
     printf("%s\n", "Setting dnssrv");
+    printf("%s\n", bucket->dnssrv);
     lcb_cntl_string(bucket->handle, "dnsserv", bucket->dnssrv);
     err = lcb_connect(bucket->handle);
     if (err != LCB_SUCCESS) {
