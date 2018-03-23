@@ -16,6 +16,7 @@
  */
 
 #include "couchbase_ext.h"
+#include <stdio.h>
 
     static VALUE
 trigger_on_connect_callback(VALUE self)
@@ -87,6 +88,7 @@ cb_bucket_mark(void *ptr)
         rb_gc_mark(bucket->bucket);
         rb_gc_mark(bucket->username);
         rb_gc_mark(bucket->password);
+        rb_gc_mark(bucket->dnssrv);
         rb_gc_mark(bucket->exception);
         rb_gc_mark(bucket->on_error_proc);
         rb_gc_mark(bucket->on_connect_proc);
@@ -131,6 +133,10 @@ do_scan_connection_options(struct cb_bucket_st *bucket, int argc, VALUE *argv)
             if (arg != Qnil) {
                 bucket->password = rb_str_dup_frozen(StringValue(arg));
             }
+            arg = rb_funcall(uri_obj, cb_id_dnssrv, 0);
+             if (arg != Qnil) {
+                 bucket->dnssrv = rb_str_dup_frozen(StringValue(arg));
+             }
             arg = rb_funcall(uri_obj, cb_id_host, 0);
             if (arg != Qnil) {
                 bucket->hostname = rb_str_dup_frozen(StringValue(arg));
@@ -195,6 +201,10 @@ do_scan_connection_options(struct cb_bucket_st *bucket, int argc, VALUE *argv)
             arg = rb_hash_aref(opts, cb_sym_password);
             if (arg != Qnil) {
                 bucket->password = rb_str_dup_frozen(StringValue(arg));
+            }
+            arg = rb_hash_aref(opts, cb_sym_dnssrv);
+            if (arg != Qnil) {
+                bucket->dnssrv = rb_str_dup_frozen(StringValue(arg));
             }
             arg = rb_hash_aref(opts, cb_sym_port);
             if (arg != Qnil) {
@@ -327,6 +337,7 @@ em_disconnect_block(VALUE unused, VALUE self)
     static void
 do_connect(struct cb_bucket_st *bucket)
 {
+    printf("%s\n", "connecting");
     lcb_error_t err;
     struct lcb_create_st create_opts;
     lcb_config_transport_t transports[3] = {
@@ -419,6 +430,8 @@ do_connect(struct cb_bucket_st *bucket)
 
     lcb_cntl(bucket->handle, (bucket->timeout > 0) ? LCB_CNTL_SET : LCB_CNTL_GET,
              LCB_CNTL_OP_TIMEOUT, &bucket->timeout);
+    printf("%s\n", "Setting dnssrv");
+    lcb_cntl_string(bucket->handle, "dnsserv", bucket->dnssrv);
     err = lcb_connect(bucket->handle);
     if (err != LCB_SUCCESS) {
         cb_bucket_disconnect(bucket->self);
@@ -569,6 +582,7 @@ cb_bucket_init(int argc, VALUE *argv, VALUE self)
     bucket->bucket = cb_vStrDefault;
     bucket->username = Qnil;
     bucket->password = Qnil;
+    bucket->dnssrv = Qnil;
     bucket->engine = cb_sym_default;
     bucket->async = 0;
     bucket->quiet = 0;
@@ -629,6 +643,7 @@ cb_bucket_init_copy(VALUE copy, VALUE orig)
     copy_b->bucket = orig_b->bucket;
     copy_b->username = orig_b->username;
     copy_b->password = orig_b->password;
+    copy_b->dnssrv = orig_b->dnssrv;
     copy_b->engine = orig_b->engine;
     copy_b->async = orig_b->async;
     copy_b->quiet = orig_b->quiet;
@@ -1089,6 +1104,13 @@ cb_bucket_password_get(VALUE self)
 {
     struct cb_bucket_st *bucket = DATA_PTR(self);
     return bucket->password;
+}
+
+    VALUE
+cb_bucket_dnssrv_get(VALUE self)
+{
+    struct cb_bucket_st *bucket = DATA_PTR(self);
+    return bucket->dnssrv;
 }
 
 /* Document-method: environment

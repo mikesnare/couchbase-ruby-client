@@ -91,6 +91,7 @@ ID cb_sym_not_found;
 ID cb_sym_num_replicas;
 ID cb_sym_observe;
 ID cb_sym_password;
+ID cb_sym_dnssrv;
 ID cb_sym_periodic;
 ID cb_sym_persisted;
 ID cb_sym_plain;
@@ -151,6 +152,7 @@ ID cb_id_observe_and_wait;
 ID cb_id_parse;
 ID cb_id_parse_body_bang;
 ID cb_id_password;
+ID cb_id_dnssrv;
 ID cb_id_path;
 ID cb_id_port;
 ID cb_id_scheme;
@@ -1218,6 +1220,16 @@ Init_couchbase_ext(void)
      */
     /* rb_define_attr(cb_cBucket, "password", 1, 0); */
     rb_define_method(cb_cBucket, "password", cb_bucket_password_get, 0);
+    /* Document-method: dnssrv
+     *
+     * The dnssrv value used to connect to the cluster
+     *
+     * @since 1.0.0
+     *
+     * @return [String] the dnssrv value
+     */
+    /* rb_define_attr(cb_cBucket, "dnssrv", 1, 0); */
+    rb_define_method(cb_cBucket, "dnssrv", cb_bucket_dnssrv_get, 0);
     /* Document-method: environment
      *
      * The environment of the connection (+:development+ or +:production+)
@@ -1382,6 +1394,7 @@ Init_couchbase_ext(void)
     cb_id_parse = rb_intern("parse");
     cb_id_parse_body_bang = rb_intern("parse_body!");
     cb_id_password = rb_intern("password");
+    cb_id_dnssrv = rb_intern("dnssrv");
     cb_id_path = rb_intern("path");
     cb_id_port = rb_intern("port");
     cb_id_scheme = rb_intern("scheme");
@@ -1414,6 +1427,7 @@ Init_couchbase_ext(void)
     cb_sym_delete = ID2SYM(rb_intern("delete"));
     cb_sym_delta = ID2SYM(rb_intern("delta"));
     cb_sym_development = ID2SYM(rb_intern("development"));
+    cb_sym_dnssrv = ID2SYM(rb_intern("dnssrv"));
     cb_sym_document = ID2SYM(rb_intern("document"));
     cb_sym_engine = ID2SYM(rb_intern("engine"));
     cb_sym_environment = ID2SYM(rb_intern("environment"));
@@ -1444,6 +1458,7 @@ Init_couchbase_ext(void)
     cb_sym_num_replicas = ID2SYM(rb_intern("num_replicas"));
     cb_sym_observe = ID2SYM(rb_intern("observe"));
     cb_sym_password = ID2SYM(rb_intern("password"));
+    cb_sym_dnssrv = ID2SYM(rb_intern("dnssrv"));
     cb_sym_periodic = ID2SYM(rb_intern("periodic"));
     cb_sym_persisted = ID2SYM(rb_intern("persisted"));
     cb_sym_plain = ID2SYM(rb_intern("plain"));
